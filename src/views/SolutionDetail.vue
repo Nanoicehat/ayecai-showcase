@@ -78,7 +78,7 @@ async function loadArticle() {
       if (match2?.cover) {
         coverUrl.value = `${import.meta.env.BASE_URL}${match2.cover}`
       } else {
-        const defaultCovers = ['solutions/defaults/1.jpg', 'solutions/defaults/2.jpg', 'solutions/defaults/3.jpg', 'solutions/defaults/4.jpg', 'solutions/defaults/5.jpg', 'solutions/defaults/6.jpg']
+        const defaultCovers = Array.from({ length: 20 }, (_, i) => `solutions/defaults/${i + 1}.jpg`)
         const hash = slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
         coverUrl.value = `${import.meta.env.BASE_URL}${defaultCovers[hash % defaultCovers.length]}`
       }

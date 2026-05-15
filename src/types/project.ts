@@ -12,7 +12,7 @@ export interface ProjectConfig {
   slug: string
   title: string
   description: string
-  tags: string[]
+  tags?: string[]
   coverImage: string
   theme?: ProjectTheme
   hasPreview?: boolean

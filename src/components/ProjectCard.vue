@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="showcase-info">
-      <div class="showcase-tags">
+      <div v-if="project.tags?.length" class="showcase-tags">
         <span v-for="tag in project.tags" :key="tag" class="tag">{{ tag }}</span>
       </div>
       <h2 class="showcase-title">{{ project.title }}</h2>
@@ -36,6 +36,7 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import type { ProjectConfig } from '@/types/project'
+import { getPresetBySlug } from '@/config/showcase-presets'
 
 const props = defineProps<{
   project: ProjectConfig
@@ -51,17 +52,21 @@ const previewComponent = computed(() => {
   return defineAsyncComponent(() => import(`../projects/${slug}/preview.vue`))
 })
 
+const effectiveShowcase = computed(() => {
+  return props.project.showcase ?? getPresetBySlug(props.project.slug)
+})
+
 const animationClass = computed(() => {
-  return `anim-${props.project.showcase?.animation ?? 'slide-up'}`
+  return `anim-${effectiveShowcase.value.animation ?? 'slide-up'}`
 })
 
 const showcaseVars = computed(() => {
-  const s = props.project.showcase
+  const s = effectiveShowcase.value
   const vars: Record<string, string> = {
     transitionDelay: `${props.delay ?? 0}ms`
   }
-  if (s?.bgGradient) vars['--showcase-bg'] = s.bgGradient
-  if (s?.accentColor) vars['--showcase-accent'] = s.accentColor
+  if (s.bgGradient) vars['--showcase-bg'] = s.bgGradient
+  if (s.accentColor) vars['--showcase-accent'] = s.accentColor
   return vars
 })
 </script>

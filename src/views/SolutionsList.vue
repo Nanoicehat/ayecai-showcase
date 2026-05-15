@@ -115,14 +115,7 @@ const effectiveColumns = Math.min(
   solutionsConfig.columnsMax
 )
 
-const defaultCovers = [
-  'solutions/defaults/1.jpg',
-  'solutions/defaults/2.jpg',
-  'solutions/defaults/3.jpg',
-  'solutions/defaults/4.jpg',
-  'solutions/defaults/5.jpg',
-  'solutions/defaults/6.jpg',
-]
+const defaultCovers = Array.from({ length: 20 }, (_, i) => `solutions/defaults/${i + 1}.jpg`)
 
 function getArticleCover(article: Article): string {
   if (article.cover) return `${baseUrl}${article.cover}`
