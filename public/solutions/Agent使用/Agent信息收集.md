@@ -1,7 +1,7 @@
 ---
 title: Agent信息收集
-date: 2025-05-15
-category: ai
+date: 2025-05-15T00:00:00.000Z
+category: Agent使用
 summary: 个人Agent环境方案、工具功能对照、模型配置推荐与好用的AI编程工具集合
 ---
 

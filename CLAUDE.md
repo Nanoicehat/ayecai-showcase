@@ -201,7 +201,7 @@ import myProjectConfig from './my-project/config'
 ```
 public/solutions/
 ├── index.json              ← 构建时自动生成，勿手动编辑
-├── defaults/               ← 默认风景图（无封面时的兜底图）
+├── _default-covers/               ← 默认风景图（无封面时的兜底图）
 │   ├── 1.jpg ... 6.jpg
 ├── ai/                     ← 分类目录
 │   ├── Agent信息收集.md
@@ -250,7 +250,7 @@ summary: 一句话摘要，显示在列表页卡片中
 
 示例：`public/solutions/ai/Agent信息收集.md` → 封面图为 `public/solutions/ai/Agent信息收集.jpg`
 
-如果不提供封面图，系统会从 `public/solutions/defaults/` 中基于文件名 hash 确定性分配一张默认风景图。
+如果不提供封面图，系统会从 `public/solutions/_default-covers/` 中基于文件名 hash 确定性分配一张默认风景图。
 
 #### 第 4 步：生成索引
 
@@ -274,7 +274,7 @@ npm run generate-index
 2. **frontmatter 中的 `category` 必须与目录路径一致** — 否则目录树筛选会出错
 3. **文件名避免特殊字符** — 中文、英文、数字、连字符均可，避免 `#`、`?`、`&` 等 URL 特殊字符
 4. **图片大小建议** — 封面图建议 800x450（16:9），文件大小控制在 100KB 以内
-5. **默认图目录 `defaults/` 勿放 md 文件** — 该目录被构建脚本排除扫描（因为子目录名作为分类）
+5. **默认图目录 `_default-covers/` 勿放 md 文件** — 该目录被构建脚本排除扫描（因为子目录名作为分类）
 6. **部署后自动生效** — GitHub Actions 构建时会自动执行 `prebuild` 生成索引
 
 ### 配置文件
@@ -296,10 +296,102 @@ export const solutionsConfig = {
 |:--|:--|
 | `public/solutions/` | 文章 Markdown 文件存放目录 |
 | `public/solutions/index.json` | 自动生成的文章索引 |
-| `public/solutions/defaults/` | 默认封面风景图 |
+| `public/solutions/_default-covers/` | 默认封面风景图 |
 | `scripts/generate-solutions-index.ts` | 索引生成脚本 |
 | `src/config/solutions.ts` | 列表页分页/列数配置 |
 | `src/views/SolutionsList.vue` | 文章列表页（含目录树 + 分页） |
 | `src/views/SolutionDetail.vue` | 文章详情页（Markdown 渲染 + 背景图） |
 | `src/components/SolutionsTree.vue` | 左侧目录树组件 |
 | `src/components/TreeNode.vue` | 目录树递归节点组件 |
+
+## 项目初始化交互指南
+
+当用户将新项目文件夹放入 `src/projects/<slug>/` 后，Claude 应执行以下交互式引导流程完成项目引入。
+
+### 触发条件
+
+用户说类似「帮我初始化这个项目」「注册新项目」「引入 xxx 项目」时触发。
+
+### 交互流程
+
+#### 第 1 步：检测项目文件夹
+
+确认 `src/projects/<slug>/` 存在，且至少包含 `index.vue` 和 `assets/cover.svg`（或其他封面格式）。如果缺少必要文件，提示用户补充。
+
+#### 第 2 步：询问标签
+
+读取 `src/config/tags.ts`，提取现有标签（排除「全部」），使用 AskUserQuestion 工具让用户选择：
+
+```
+问题：这个项目属于哪些标签？（可多选）
+选项：从 tags.ts 中读取的标签 label 列表
+允许：多选 + 自定义输入新标签
+```
+
+如果用户输入了新标签，需要在 `tags.ts` 中添加新的 TagConfig 对象。
+
+#### 第 3 步：确定主题色
+
+使用 AskUserQuestion 询问用户主题色，或从项目 `index.vue` 的样式中推断：
+
+```
+问题：项目的主题色是什么？
+选项：提供几个常见选项（如 #6366f1 靛蓝、#e07c54 暖橙、#22c55e 绿色、#8b5cf6 紫色）+ 自定义
+```
+
+#### 第 4 步：生成 showcase 样式配置
+
+根据主题色自动生成 `config.ts` 中的 showcase 字段：
+
+```typescript
+showcase: {
+  bgGradient: `linear-gradient(135deg, ${lighten(color, 95)} 0%, ${lighten(color, 85)} 100%)`,
+  accentColor: color,
+  animation: '从 slide-up | slide-left | slide-right | fade-scale | rotate-in 中选择'
+}
+```
+
+animation 选择规则：按项目在 registry 中的顺序轮换，避免相邻项目动画相同。
+
+#### 第 5 步：生成 theme CSS 变量
+
+根据主题色生成 `config.ts` 中的 theme 字段：
+
+```typescript
+theme: {
+  '--color-primary': color,
+  '--color-primary-light': lighten(color, 40),  // HSL lightness +40%
+  '--color-primary-dark': darken(color, 15),    // HSL lightness -15%
+  '--color-bg': lighten(color, 95),             // 极浅背景
+  '--color-bg-card': '#ffffff'
+}
+```
+
+色值变换方法：将 HEX 转 HSL，调整 lightness 分量，再转回 HEX。
+
+#### 第 6 步：写入 config.ts
+
+如果 `config.ts` 不存在，根据模板生成完整文件。如果已存在，补充缺失的 theme/showcase 字段。
+
+#### 第 7 步：注册到 registry.ts 和 tags.ts
+
+1. 在 `src/projects/registry.ts` 中添加 import 语句和 projects 数组项
+2. 在 `src/config/tags.ts` 中将 slug 添加到用户选择的标签的 projects 数组
+
+#### 第 8 步：验证清单
+
+完成后逐项验证：
+
+- [ ] `src/projects/<slug>/config.ts` 存在且字段完整
+- [ ] `src/projects/<slug>/index.vue` 存在
+- [ ] `src/projects/<slug>/assets/` 下有封面图
+- [ ] `src/projects/registry.ts` 已导入并注册该项目
+- [ ] `src/config/tags.ts` 包含该项目的 slug
+- [ ] 运行 `npx vue-tsc --noEmit` 无类型错误
+- [ ] 启动 dev server 后首页能看到新项目卡片
+
+### 辅助函数参考
+
+色值计算（Claude 在生成配置时自行计算）：
+- lighten(hex, percent): HEX → HSL，L = min(L + percent, 100)，再转 HEX
+- darken(hex, percent): HEX → HSL，L = max(L - percent, 0)，再转 HEX

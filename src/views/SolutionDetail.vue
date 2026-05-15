@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { marked } from 'marked'
+import { marked, Renderer } from 'marked'
 
 const route = useRoute()
 
@@ -78,13 +78,24 @@ async function loadArticle() {
       if (match2?.cover) {
         coverUrl.value = `${import.meta.env.BASE_URL}${match2.cover}`
       } else {
-        const defaultCovers = Array.from({ length: 20 }, (_, i) => `solutions/defaults/${i + 1}.jpg`)
+        const defaultCovers = Array.from({ length: 20 }, (_, i) => `solutions/_default-covers/${i + 1}.jpg`)
         const hash = slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
         coverUrl.value = `${import.meta.env.BASE_URL}${defaultCovers[hash % defaultCovers.length]}`
       }
     }
 
-    htmlContent.value = await marked(body)
+    const baseUrl = import.meta.env.BASE_URL
+    const articleDir = fullPath.includes('/') ? fullPath.split('/').slice(0, -1).join('/') : ''
+    const imgBase = articleDir ? `${baseUrl}solutions/${articleDir}/` : `${baseUrl}solutions/`
+
+    const renderer = new Renderer()
+    renderer.image = ({ href, title, text }) => {
+      const resolvedSrc = (href && !/^https?:\/\//.test(href)) ? `${imgBase}${href}` : href
+      const titleAttr = title ? ` title="${title}"` : ''
+      return `<img src="${resolvedSrc}" alt="${text || ''}"${titleAttr} />`
+    }
+
+    htmlContent.value = await marked(body, { renderer })
   } catch {
     error.value = '加载文章时出错'
   } finally {

@@ -31,6 +31,7 @@ function scanDirectory(dir: string, category = ''): ArticleMeta[] {
 
   for (const entry of entries) {
     if (entry.isDirectory()) {
+      if (entry.name === '_default-covers' || entry.name === 'assets') continue
       const subCategory = category ? `${category}/${entry.name}` : entry.name
       articles.push(...scanDirectory(path.join(dir, entry.name), subCategory))
     } else if (entry.name.endsWith('.md') && entry.name !== 'README.md') {
