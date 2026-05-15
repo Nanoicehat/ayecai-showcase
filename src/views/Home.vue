@@ -12,7 +12,7 @@
         <span class="role-text">前端开发者 / 创意极客</span>
         <span class="role-line" />
       </div>
-      <h1 class="hero-logo">阿椰菜</h1>
+      <h1 class="hero-logo"><span class="hero-emoji">🥬</span>阿椰菜</h1>
       <p class="hero-typing">
         <span class="typing-text">{{ displayText }}</span>
         <span :class="['cursor', { blink: !isTyping }]">|</span>
@@ -188,6 +188,11 @@ function toggleTag(label: string) {
   letter-spacing: 0.05em;
   margin-bottom: var(--spacing-md);
   line-height: 1.2;
+}
+
+.hero-emoji {
+  -webkit-text-fill-color: initial;
+  margin-right: 0.1em;
 }
 
 .hero-typing {

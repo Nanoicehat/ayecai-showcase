@@ -2,15 +2,43 @@
   <nav class="navbar">
     <div class="navbar-inner">
       <router-link to="/" class="navbar-brand">
-        <span class="navbar-icon">✦</span>
+        <span class="navbar-icon">🥬</span>
         <span class="navbar-title">阿椰菜</span>
       </router-link>
-      <router-link v-if="$route.path !== '/'" to="/" class="navbar-back">
-        ← 返回
-      </router-link>
+      <div class="navbar-tabs">
+        <router-link
+          to="/"
+          class="navbar-tab"
+          :class="{ active: isProjectsActive }"
+        >
+          开源项目
+        </router-link>
+        <router-link
+          to="/solutions"
+          class="navbar-tab"
+          :class="{ active: isSolutionsActive }"
+        >
+          椰菜优解
+        </router-link>
+      </div>
     </div>
   </nav>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const isSolutionsActive = computed(() =>
+  route.path.startsWith('/solutions')
+)
+
+const isProjectsActive = computed(() =>
+  !isSolutionsActive.value
+)
+</script>
 
 <style scoped>
 .navbar {
@@ -53,21 +81,34 @@
 }
 
 .navbar-icon {
-  background: linear-gradient(135deg, #5b9bd5, #e07c54);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   font-size: var(--font-size-xl);
   transition: transform 0.6s ease;
 }
 
-.navbar-back {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+.navbar-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
-.navbar-back:hover {
-  color: var(--color-primary);
+.navbar-tab {
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.navbar-tab:hover {
+  color: var(--color-text);
+  background: var(--color-bg-card);
+}
+
+.navbar-tab.active {
+  color: var(--color-primary, #5b9bd5);
+  background: var(--color-bg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 @media (max-width: 640px) {
@@ -77,6 +118,11 @@
 
   .navbar-title {
     font-size: var(--font-size-base);
+  }
+
+  .navbar-tab {
+    padding: 4px 10px;
+    font-size: 13px;
   }
 }
 </style>

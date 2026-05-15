@@ -7,6 +7,16 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'home', component: Home },
     { path: '/project/:slug', name: 'project', component: ProjectPage },
+    {
+      path: '/solutions',
+      name: 'solutions',
+      component: () => import('@/views/SolutionsList.vue')
+    },
+    {
+      path: '/solutions/:path+',
+      name: 'solution-detail',
+      component: () => import('@/views/SolutionDetail.vue')
+    },
     { path: '/:pathMatch(.*)*', redirect: '/' }
   ]
 })
