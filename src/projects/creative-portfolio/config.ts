@@ -3,8 +3,8 @@ import coverImage from './assets/cover.svg'
 
 const config: ProjectConfig = {
   slug: 'creative-portfolio',
-  title: '创意作品集',
-  description: '暖色调的画廊式作品展示，涵盖摄影、插画和数字艺术创作。',
+  title: '阿椰菜补丁铺',
+  description: '个人开源项目展示 & 技术方案收录，部署在 GitHub Pages。Vue 3 + Vite + TypeScript，纯 CSS 动画。',
   tags: ['设计', '画廊', '创意'],
   coverImage,
   hasPreview: true,
@@ -20,7 +20,7 @@ const config: ProjectConfig = {
     accentColor: '#e07c54',
     animation: 'slide-right'
   },
-  github: 'https://github.com/ayecai/creative-portfolio'
+  github: 'https://Nanoicehat.github.io/ayecai-showcase/'
 }
 
 export default config
